@@ -22,6 +22,10 @@ Alpine.data("dashboardUi", () => ({
   editCardTitle: "",
   editCardUrl: "",
 
+  syncDocumentTitle(title: string): void {
+    document.title = title;
+  },
+
   init(): void {
     const titleNode = document.querySelector<HTMLElement>("[data-dashboard-title]");
     const fallback = titleNode?.textContent?.trim() || DEFAULT_TITLE;
@@ -37,6 +41,7 @@ Alpine.data("dashboardUi", () => ({
     }
 
     this.editedTitle = this.dashboardTitle;
+    this.syncDocumentTitle(this.dashboardTitle);
 
     const isTypingTarget = (target: EventTarget | null): boolean => {
       if (!(target instanceof HTMLElement)) {
@@ -92,6 +97,7 @@ Alpine.data("dashboardUi", () => ({
     this.dashboardTitle = nextTitle;
     this.editedTitle = nextTitle;
     this.settingsOpen = false;
+    this.syncDocumentTitle(nextTitle);
 
     try {
       localStorage.setItem(TITLE_KEY, nextTitle);
@@ -103,6 +109,7 @@ Alpine.data("dashboardUi", () => ({
     this.dashboardTitle = DEFAULT_TITLE;
     this.editedTitle = DEFAULT_TITLE;
     this.settingsOpen = false;
+    this.syncDocumentTitle(DEFAULT_TITLE);
 
     try {
       localStorage.removeItem(TITLE_KEY);

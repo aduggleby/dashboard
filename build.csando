@@ -21,7 +21,7 @@ var integrationTests = Dotnet.Project("./tests/Dashboard.Web.IntegrationTests/Da
 var defaultVersion = webProject.Version;
 var version = Env("IMAGE_TAG", required: false) ?? defaultVersion;
 
-Dotnet.SdkInstall();
+Dotnet.SdkInstall("10.0");
 Dotnet.Restore(webProject);
 Dotnet.Build(webProject);
 Dotnet.Test(unitTests);

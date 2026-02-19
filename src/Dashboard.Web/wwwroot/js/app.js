@@ -3469,6 +3469,9 @@ ${expression ? 'Expression: "' + expression + '"\n\n' : ""}`, el);
     editCardId: 0,
     editCardTitle: "",
     editCardUrl: "",
+    syncDocumentTitle(title) {
+      document.title = title;
+    },
     init() {
       const titleNode = document.querySelector("[data-dashboard-title]");
       const fallback = titleNode?.textContent?.trim() || DEFAULT_TITLE;
@@ -3481,6 +3484,7 @@ ${expression ? 'Expression: "' + expression + '"\n\n' : ""}`, el);
       } catch {
       }
       this.editedTitle = this.dashboardTitle;
+      this.syncDocumentTitle(this.dashboardTitle);
       const isTypingTarget = (target) => {
         if (!(target instanceof HTMLElement)) {
           return false;
@@ -3530,6 +3534,7 @@ ${expression ? 'Expression: "' + expression + '"\n\n' : ""}`, el);
       this.dashboardTitle = nextTitle;
       this.editedTitle = nextTitle;
       this.settingsOpen = false;
+      this.syncDocumentTitle(nextTitle);
       try {
         localStorage.setItem(TITLE_KEY, nextTitle);
       } catch {
@@ -3539,6 +3544,7 @@ ${expression ? 'Expression: "' + expression + '"\n\n' : ""}`, el);
       this.dashboardTitle = DEFAULT_TITLE;
       this.editedTitle = DEFAULT_TITLE;
       this.settingsOpen = false;
+      this.syncDocumentTitle(DEFAULT_TITLE);
       try {
         localStorage.removeItem(TITLE_KEY);
       } catch {
