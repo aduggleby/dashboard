@@ -5,9 +5,8 @@
 //   ando              # restore, build, test
 //   ando -p publish   # build/test + publish Docker image to GHCR
 //
-// Required env for publish profile:
-//   GHCR_OWNER        # e.g. alex
 // Optional env:
+//   GHCR_OWNER        # overrides owner inferred from git remote origin
 //   GHCR_IMAGE        # default: dashboard
 //   IMAGE_TAG         # default: project version
 // =============================================================================
@@ -32,7 +31,7 @@ if (!publish)
     return;
 }
 
-var ghcrOwner = Env("GHCR_OWNER", required: true).ToLowerInvariant();
+var ghcrOwner = ResolveGhcrOwner();
 var ghcrImage = (Env("GHCR_IMAGE", required: false) ?? "dashboard").ToLowerInvariant();
 var repository = $"ghcr.io/{ghcrOwner}/{ghcrImage}";
 
@@ -45,3 +44,64 @@ Docker.Build("./Dockerfile", o => o
     .WithTag($"{repository}:{version}")
     .WithTag($"{repository}:latest")
     .WithPush());
+
+string ResolveGhcrOwner()
+{
+    var explicitOwner = Env("GHCR_OWNER", required: false);
+    if (!string.IsNullOrWhiteSpace(explicitOwner))
+    {
+        return explicitOwner.ToLowerInvariant();
+    }
+
+    var remoteUrl = TryGetGitRemoteUrl();
+    var owner = ParseGithubOwner(remoteUrl);
+    if (!string.IsNullOrWhiteSpace(owner))
+    {
+        Log.Info($"Using GHCR owner inferred from git remote: {owner}");
+        return owner.ToLowerInvariant();
+    }
+
+    throw new InvalidOperationException(
+        "Could not determine GHCR owner from git remote. Set GHCR_OWNER explicitly."
+    );
+}
+
+static string? TryGetGitRemoteUrl()
+{
+    var info = new System.Diagnostics.ProcessStartInfo
+    {
+        FileName = "git",
+        Arguments = "config --get remote.origin.url",
+        RedirectStandardOutput = true,
+        RedirectStandardError = true,
+        UseShellExecute = false,
+        CreateNoWindow = true
+    };
+
+    using var process = System.Diagnostics.Process.Start(info);
+    if (process is null)
+    {
+        return null;
+    }
+
+    var output = process.StandardOutput.ReadToEnd().Trim();
+    process.WaitForExit();
+
+    return process.ExitCode == 0 ? output : null;
+}
+
+static string? ParseGithubOwner(string? remoteUrl)
+{
+    if (string.IsNullOrWhiteSpace(remoteUrl))
+    {
+        return null;
+    }
+
+    var match = System.Text.RegularExpressions.Regex.Match(
+        remoteUrl.Trim(),
+        @"github\.com[:/](?<owner>[^/]+)/(?<repo>[^/]+?)(?:\.git)?$",
+        System.Text.RegularExpressions.RegexOptions.IgnoreCase
+    );
+
+    return match.Success ? match.Groups["owner"].Value : null;
+}
