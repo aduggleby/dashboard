@@ -1,0 +1,60 @@
+@model Dashboard.Web.Models.DashboardIndexViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="panel form-panel">
+    <h1 class="panel__title">Add app card</h1>
+    @if (TempData["StatusSuccess"] is string success)
+    {
+        <p class="status success">@success</p>
+    }
+    @if (TempData["StatusError"] is string error)
+    {
+        <p class="status error">@error</p>
+    }
+
+    <form asp-controller="Cards" asp-action="Create" method="post" class="card-form">
+        @Html.AntiForgeryToken()
+        <label>
+            Title
+            <input asp-for="Form.Title" maxlength="120" required />
+        </label>
+        <label>
+            URL
+            <input asp-for="Form.Url" maxlength="2048" inputmode="url" placeholder="https://example.local" required />
+        </label>
+        <button type="submit">Add card</button>
+    </form>
+
+    <form id="reorder-anti-forgery" class="hidden-token">@Html.AntiForgeryToken()</form>
+</div>
+
+@if (Model.Cards.Count == 0)
+{
+    <section class="panel empty-state">
+        <h2>Add your first app</h2>
+        <p>Create a card above to start your dashboard.</p>
+    </section>
+}
+else
+{
+    <section class="grid" id="cards-grid" aria-label="Dashboard cards">
+        @foreach (var card in Model.Cards)
+        {
+            <article class="card" draggable="true" tabindex="0" data-card-id="@card.Id">
+                <a class="card__link" href="@card.Url">
+                    <h2 class="card__title">@card.Title</h2>
+                </a>
+                <div class="card__actions">
+                    <button type="button" class="reorder-button" data-move="up" aria-label="Move @card.Title up">Up</button>
+                    <button type="button" class="reorder-button" data-move="down" aria-label="Move @card.Title down">Down</button>
+                    <form asp-controller="Cards" asp-action="Delete" asp-route-id="@card.Id" method="post">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="delete-button">Delete</button>
+                    </form>
+                </div>
+            </article>
+        }
+    </section>
+}

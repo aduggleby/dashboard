@@ -1,0 +1,29 @@
+# Build artifacts
+**/bin/
+**/obj/
+
+# .NET user files
+*.user
+*.suo
+
+# Logs and runtime data
+*.log
+*.db
+*.db-shm
+*.db-wal
+data/
+
+# Node / Playwright
+tests/e2e/node_modules/
+tests/e2e/test-results/
+tests/e2e/results/
+playwright-report/
+
+# Environment / OS
+.env
+.env.*
+.DS_Store
+Thumbs.db
+
+# Misc generated
+build.csando.log

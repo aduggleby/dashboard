@@ -1,0 +1,7 @@
+- [x] Scaffold solution and ASP.NET MVC app + test projects
+- [x] Add EF Core SQLite model, DbContext, migration, and service layer
+- [x] Implement dashboard UI, create/delete, reorder endpoints, and validation
+- [x] Implement light/dark theme toggle persistence and styling from demos
+- [x] Add Dockerfile, compose file, and TrueNAS deployment documentation
+- [x] Add unit/integration tests and run dotnet test
+- [x] Update plan checkboxes for completed acceptance and quality items

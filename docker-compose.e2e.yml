@@ -1,0 +1,26 @@
+services:
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: dashboard-web:e2e
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://0.0.0.0:8080
+      ConnectionStrings__DashboardDb: Data Source=/app/storage/data/dashboard.db
+    volumes:
+      - dashboard_e2e_storage:/app/storage
+
+  e2e:
+    image: mcr.microsoft.com/playwright:v1.49.0-jammy
+    working_dir: /work/tests/e2e
+    environment:
+      BASE_URL: http://dashboard:8080
+      CI: "true"
+    depends_on:
+      - dashboard
+    volumes:
+      - ./:/work
+
+volumes:
+  dashboard_e2e_storage:

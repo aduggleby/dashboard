@@ -1,0 +1,47 @@
+// =============================================================================
+// build.csando - Dashboard build/release script for ANDO
+//
+// Usage:
+//   ando              # restore, build, test
+//   ando -p publish   # build/test + publish Docker image to GHCR
+//
+// Required env for publish profile:
+//   GHCR_OWNER        # e.g. alex
+// Optional env:
+//   GHCR_IMAGE        # default: dashboard
+//   IMAGE_TAG         # default: project version
+// =============================================================================
+
+var publish = DefineProfile("publish");
+
+var webProject = Dotnet.Project("./src/Dashboard.Web/Dashboard.Web.csproj");
+var unitTests = Dotnet.Project("./tests/Dashboard.Web.Tests/Dashboard.Web.Tests.csproj");
+var integrationTests = Dotnet.Project("./tests/Dashboard.Web.IntegrationTests/Dashboard.Web.IntegrationTests.csproj");
+
+var defaultVersion = webProject.Version;
+var version = Env("IMAGE_TAG", required: false) ?? defaultVersion;
+
+Dotnet.SdkInstall();
+Dotnet.Restore(webProject);
+Dotnet.Build(webProject);
+Dotnet.Test(unitTests);
+Dotnet.Test(integrationTests);
+
+if (!publish)
+{
+    return;
+}
+
+var ghcrOwner = Env("GHCR_OWNER", required: true).ToLowerInvariant();
+var ghcrImage = (Env("GHCR_IMAGE", required: false) ?? "dashboard").ToLowerInvariant();
+var repository = $"ghcr.io/{ghcrOwner}/{ghcrImage}";
+
+Log.Info($"Publishing image: {repository}:{version}");
+
+Docker.Install();
+Docker.Build("./Dockerfile", o => o
+    .WithContext(".")
+    .WithPlatforms("linux/amd64", "linux/arm64")
+    .WithTag($"{repository}:{version}")
+    .WithTag($"{repository}:latest")
+    .WithPush());

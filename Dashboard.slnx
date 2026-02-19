@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Dashboard.Web/Dashboard.Web.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Dashboard.Web.IntegrationTests/Dashboard.Web.IntegrationTests.csproj" />
+    <Project Path="tests/Dashboard.Web.Tests/Dashboard.Web.Tests.csproj" />
+  </Folder>
+</Solution>

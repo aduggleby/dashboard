@@ -1,0 +1,48 @@
+@using Dashboard.Web.Models
+@inject Microsoft.Extensions.Options.IOptions<ThemeOptions> ThemeOptions
+<!DOCTYPE html>
+<html lang="en" data-theme="@ThemeOptions.Value.DefaultTheme">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Dashboard</title>
+    <script>
+        (function () {
+            var fallback = "@ThemeOptions.Value.DefaultTheme";
+            var light = "origami-light";
+            var dark = "origami-dark";
+            var systemTheme = fallback;
+
+            if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+                systemTheme = dark;
+            } else if (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches) {
+                systemTheme = light;
+            }
+
+            try {
+                var stored = localStorage.getItem("dashboard-theme");
+                document.documentElement.setAttribute("data-theme", stored || systemTheme);
+            } catch {
+                document.documentElement.setAttribute("data-theme", systemTheme);
+            }
+        })();
+    </script>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <div class="page-shell">
+        <header class="topbar">
+            <div class="topbar__title">Homelab Dashboard</div>
+            <partial name="_ThemeToggle" />
+        </header>
+
+        <main role="main">
+            @RenderBody()
+        </main>
+    </div>
+
+    <script src="~/js/theme.js" asp-append-version="true"></script>
+    <script src="~/js/reorder.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,16 @@
+services:
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: dashboard-web:latest
+    container_name: dashboard-web
+    ports:
+      - "8080:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__DashboardDb: Data Source=/app/storage/data/dashboard.db
+      ThemeOptions__DefaultTheme: origami-light
+    volumes:
+      - ./data:/app/storage
+    restart: unless-stopped

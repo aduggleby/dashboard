@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Retro Terminal Tiles Demo</title>
+  <style>
+    :root {
+      --bg: #090a07;
+      --text: #c8ff90;
+      --muted: #90c56d;
+      --line: #2b4f1f;
+      --panel: #10140d;
+      --accent: #f8ff6a;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Courier New", "Lucida Console", monospace;
+      color: var(--text);
+      padding: 24px;
+      background:
+        repeating-linear-gradient(
+          to bottom,
+          #ffffff08 0,
+          #ffffff08 1px,
+          transparent 2px,
+          transparent 4px
+        ),
+        radial-gradient(900px 500px at 50% -20%, #1f3b1544, transparent 60%),
+        var(--bg);
+    }
+    .header {
+      margin-bottom: 18px;
+      font-size: .95rem;
+      color: var(--muted);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 12px;
+      align-items: start;
+    }
+    .card {
+      display: block;
+      text-decoration: none;
+      color: inherit;
+      min-height: 110px;
+      background: linear-gradient(180deg, #10160d, var(--panel));
+      border: 1px solid var(--line);
+      padding: 14px;
+      position: relative;
+      transition: background .14s linear, color .14s linear, transform .12s linear;
+      animation: flicker .9s steps(2, end) 1;
+    }
+    .card:hover {
+      background: var(--accent);
+      color: #111607;
+      transform: translateY(-2px);
+    }
+    .title {
+      margin: 0 0 10px;
+      font-size: 1rem;
+      line-height: 1.3;
+    }
+    .title::before {
+      content: "> ";
+      color: #7eff3b;
+    }
+    .url {
+      font-size: .78rem;
+      color: var(--muted);
+      word-break: break-word;
+    }
+    .card:hover .url {
+      color: #253315;
+    }
+    @keyframes flicker {
+      0% { opacity: .85; }
+      20% { opacity: .65; }
+      30% { opacity: 1; }
+      40% { opacity: .8; }
+      100% { opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">terminal://dashboard [12 services online]</div>
+  <main class="grid" id="grid"></main>
+
+  <script>
+    const apps = [
+      { title: "Plex", link: "http://192.168.1.10:32400" },
+      { title: "Jellyfin", link: "http://192.168.1.12:8096" },
+      { title: "Home Assistant", link: "http://192.168.1.20:8123" },
+      { title: "Immich", link: "http://192.168.1.25:2283" },
+      { title: "Pi-hole", link: "http://192.168.1.30/admin" },
+      { title: "TrueNAS", link: "http://192.168.1.5" },
+      { title: "Portainer", link: "http://192.168.1.40:9000" },
+      { title: "Grafana", link: "http://192.168.1.50:3000" },
+      { title: "Prometheus", link: "http://192.168.1.50:9090" },
+      { title: "Uptime Kuma", link: "http://192.168.1.60:3001" },
+      { title: "Unifi Controller", link: "http://192.168.1.70:8443" },
+      { title: "Paperless", link: "http://192.168.1.80:8000" }
+    ];
+
+    const grid = document.getElementById("grid");
+    apps.forEach((app) => {
+      const card = document.createElement("a");
+      card.className = "card";
+      card.href = app.link;
+      card.innerHTML = `
+        <h2 class="title">${app.title}</h2>
+        <div class="url">${app.link}</div>
+      `;
+      grid.appendChild(card);
+    });
+  </script>
+</body>
+</html>

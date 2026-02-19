@@ -1,0 +1,19 @@
+services:
+  dashboard:
+    image: mcr.microsoft.com/dotnet/sdk:10.0
+    working_dir: /workspace
+    command: >-
+      bash -lc "dotnet restore src/Dashboard.Web/Dashboard.Web.csproj &&
+      dotnet watch --project src/Dashboard.Web/Dashboard.Web.csproj run --urls http://0.0.0.0:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://0.0.0.0:8080
+      ConnectionStrings__DashboardDb: Data Source=/workspace/data/dashboard.dev.db
+    volumes:
+      - ./:/workspace
+      - dashboard_nuget_cache:/root/.nuget/packages
+    ports:
+      - "8080:8080"
+
+volumes:
+  dashboard_nuget_cache:
