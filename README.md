@@ -32,12 +32,16 @@ Open `http://127.0.0.1:8080`.
 ## Features
 
 - Title-only app cards (no visible URL text)
-- Add and delete cards from the UI
+- Add, edit, and delete cards from the UI (right-click a card to edit or delete)
 - URL validation (`http://` / `https://` absolute URLs only)
+- Customizable dashboard title via settings gear, persisted per browser
+- Browser tab title syncs with the dashboard title
 - Deterministic ordering (`SortOrder`, then `Title`)
 - Drag-and-drop reorder with persistence
 - Keyboard reorder (`Alt+ArrowUp`, `Alt+ArrowDown`)
+- Help dialog (`?` or `F1`) with keyboard shortcuts and usage reference
 - Origami light/dark theme toggle with browser persistence
+- SVG favicon
 - SQLite persistence for simple backup/restore
 - Serilog file logging with daily rolling files retained for 30 days
 
