@@ -15,6 +15,6 @@ if ! docker compose version >/dev/null 2>&1; then
 fi
 
 echo "Stopping dashboard dev container"
-docker compose -f docker-compose.yml -f docker-compose.dev.yml down --remove-orphans
+docker compose -f docker-compose.dev.yml down --remove-orphans
 
 echo "Dev environment stopped."

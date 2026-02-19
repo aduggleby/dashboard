@@ -1,60 +1,112 @@
 @model Dashboard.Web.Models.DashboardIndexViewModel
 @{
     ViewData["Title"] = "Dashboard";
+    var successMessage = TempData["StatusSuccess"] as string;
+    var errorMessage = TempData["StatusError"] as string;
 }
 
-<div class="panel form-panel">
-    <h1 class="panel__title">Add app card</h1>
-    @if (TempData["StatusSuccess"] is string success)
+@if (!string.IsNullOrWhiteSpace(successMessage) || !string.IsNullOrWhiteSpace(errorMessage))
+{
+    <div class="panel status-panel status-panel--floating">
+    @if (!string.IsNullOrWhiteSpace(successMessage))
     {
-        <p class="status success">@success</p>
+        <p class="status success">@successMessage</p>
     }
-    @if (TempData["StatusError"] is string error)
+    @if (!string.IsNullOrWhiteSpace(errorMessage))
     {
-        <p class="status error">@error</p>
+        <p class="status error">@errorMessage</p>
     }
+    </div>
+}
 
-    <form asp-controller="Cards" asp-action="Create" method="post" class="card-form">
-        @Html.AntiForgeryToken()
-        <label>
-            Title
-            <input asp-for="Form.Title" maxlength="120" required />
-        </label>
-        <label>
-            URL
-            <input asp-for="Form.Url" maxlength="2048" inputmode="url" placeholder="https://example.local" required />
-        </label>
-        <button type="submit">Add card</button>
-    </form>
+<form id="reorder-anti-forgery" class="hidden-token">@Html.AntiForgeryToken()</form>
 
-    <form id="reorder-anti-forgery" class="hidden-token">@Html.AntiForgeryToken()</form>
+<section x-cloak x-show="addCardOpen" class="add-card-modal" aria-label="Add app card dialog" @@click.self="closeAddCard()">
+    <div class="add-card-modal__panel" role="dialog" aria-modal="true" aria-labelledby="add-card-title" @@keydown.escape.window="closeAddCard()">
+        <div class="add-card-modal__header">
+            <h1 id="add-card-title" class="panel__title">Add app card</h1>
+            <button type="button" class="add-card-modal__close" @@click="closeAddCard()" aria-label="Close add card dialog">Close</button>
+        </div>
+        <form asp-controller="Cards" asp-action="Create" method="post" class="card-form">
+            @Html.AntiForgeryToken()
+            <label>
+                Title
+                <input asp-for="Form.Title" maxlength="120" required />
+            </label>
+            <label>
+                URL
+                <input asp-for="Form.Url" maxlength="2048" inputmode="url" placeholder="https://example.local" required />
+            </label>
+            <button type="submit">Add card</button>
+        </form>
+    </div>
+</section>
+
+<section x-cloak x-show="editCardOpen" class="add-card-modal" aria-label="Edit app card dialog" @@click.self="closeEditCard()">
+    <div class="add-card-modal__panel" role="dialog" aria-modal="true" aria-labelledby="edit-card-title" @@keydown.escape.window="closeEditCard()">
+        <div class="add-card-modal__header">
+            <h1 id="edit-card-title" class="panel__title">Edit app card</h1>
+            <button type="button" class="add-card-modal__close" @@click="closeEditCard()" aria-label="Close edit card dialog">Close</button>
+        </div>
+
+        <form asp-controller="Cards" asp-action="Update" method="post" class="card-form">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="Id" x-model="editCardId" />
+            <label>
+                Title
+                <input name="Title" maxlength="120" required x-model="editCardTitle" />
+            </label>
+            <label>
+                URL
+                <input name="Url" maxlength="2048" inputmode="url" required x-model="editCardUrl" />
+            </label>
+            <div class="settings-actions">
+                <button type="submit">Save changes</button>
+                <button type="button" class="settings-actions__secondary" @@click="closeEditCard()">Cancel</button>
+            </div>
+        </form>
+
+        <form asp-controller="Cards" asp-action="DeleteForm" method="post" class="edit-delete-form">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="id" x-model="editCardId" />
+            <button type="submit" class="edit-delete-form__button">Delete card</button>
+        </form>
+    </div>
+</section>
+
+<div class="dashboard-stage">
+    @if (Model.Cards.Count == 0)
+    {
+        <section class="panel empty-state">
+            <h2>Add your first app</h2>
+            <p>Use the <strong>+</strong> button in the top-right corner to create your first card.</p>
+        </section>
+    }
+    else
+    {
+        <section class="grid" id="cards-grid" aria-label="Dashboard cards">
+            @foreach (var card in Model.Cards)
+            {
+                var titleClass = card.Title.Length switch
+                {
+                    > 72 => "card__title card__title--ultra-dense",
+                    > 48 => "card__title card__title--dense",
+                    > 28 => "card__title card__title--compact",
+                    _ => "card__title"
+                };
+
+                <article class="card"
+                         draggable="true"
+                         tabindex="0"
+                         data-card-id="@card.Id"
+                         data-card-title="@card.Title"
+                         data-card-url="@card.Url"
+                         @@contextmenu.prevent="openEditCardFromElement($el)">
+                    <a class="card__link" href="@card.Url">
+                        <h2 class="@titleClass">@card.Title</h2>
+                    </a>
+                </article>
+            }
+        </section>
+    }
 </div>
-
-@if (Model.Cards.Count == 0)
-{
-    <section class="panel empty-state">
-        <h2>Add your first app</h2>
-        <p>Create a card above to start your dashboard.</p>
-    </section>
-}
-else
-{
-    <section class="grid" id="cards-grid" aria-label="Dashboard cards">
-        @foreach (var card in Model.Cards)
-        {
-            <article class="card" draggable="true" tabindex="0" data-card-id="@card.Id">
-                <a class="card__link" href="@card.Url">
-                    <h2 class="card__title">@card.Title</h2>
-                </a>
-                <div class="card__actions">
-                    <button type="button" class="reorder-button" data-move="up" aria-label="Move @card.Title up">Up</button>
-                    <button type="button" class="reorder-button" data-move="down" aria-label="Move @card.Title down">Down</button>
-                    <form asp-controller="Cards" asp-action="Delete" asp-route-id="@card.Id" method="post">
-                        @Html.AntiForgeryToken()
-                        <button type="submit" class="delete-button">Delete</button>
-                    </form>
-                </div>
-            </article>
-        }
-    </section>
-}

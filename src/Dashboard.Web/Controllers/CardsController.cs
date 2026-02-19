@@ -25,6 +25,24 @@ public class CardsController(CardService cardService) : Controller
         return RedirectToAction("Index", "Home");
     }
 
+    [HttpPost("update")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Update(EditCardFormModel form, CancellationToken cancellationToken)
+    {
+        if (!ModelState.IsValid)
+        {
+            TempData["StatusError"] = "Please check the form and try again.";
+            return RedirectToAction("Index", "Home");
+        }
+
+        var result = await cardService.UpdateCardAsync(form, cancellationToken);
+        TempData[result.Success ? "StatusSuccess" : "StatusError"] = result.Success
+            ? "Card updated."
+            : result.Error ?? "Card could not be updated.";
+
+        return RedirectToAction("Index", "Home");
+    }
+
     [HttpPost("delete/{id:int}")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
@@ -35,6 +53,13 @@ public class CardsController(CardService cardService) : Controller
             : "Card was already removed.";
 
         return RedirectToAction("Index", "Home");
+    }
+
+    [HttpPost("delete")]
+    [ValidateAntiForgeryToken]
+    public Task<IActionResult> DeleteForm([FromForm] int id, CancellationToken cancellationToken)
+    {
+        return Delete(id, cancellationToken);
     }
 
     [HttpPost("reorder")]

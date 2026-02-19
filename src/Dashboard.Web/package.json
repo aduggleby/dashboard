@@ -1,0 +1,17 @@
+{
+  "name": "dashboard-web-frontend",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "ts:build": "esbuild scripts/ts/app.ts --bundle --sourcemap --outfile=wwwroot/js/app.js",
+    "ts:watch": "esbuild scripts/ts/app.ts --bundle --sourcemap --outfile=wwwroot/js/app.js --watch",
+    "ts:check": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "esbuild": "0.25.10",
+    "typescript": "5.9.2"
+  },
+  "dependencies": {
+    "alpinejs": "3.14.9"
+  }
+}

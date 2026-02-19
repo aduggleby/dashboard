@@ -29,20 +29,47 @@
     </script>
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
-<body>
+<body x-data="dashboardUi">
     <div class="page-shell">
         <header class="topbar">
-            <div class="topbar__title">Homelab Dashboard</div>
-            <partial name="_ThemeToggle" />
+            <div class="topbar__title" data-dashboard-title x-text="dashboardTitle">Homelab Dashboard</div>
+            <div class="topbar__actions">
+                <button type="button" class="add-card-toggle" aria-label="Open add card dialog" title="Add app card" @@click="openAddCard()">
+                    +
+                </button>
+                <button type="button" class="settings-toggle" aria-label="Open dashboard settings" title="Dashboard settings" @@click="openSettings()">
+                    ⚙
+                </button>
+                <partial name="_ThemeToggle" />
+                <partial name="_HelpDialog" />
+            </div>
         </header>
+
+        <section x-cloak x-show="settingsOpen" class="add-card-modal" aria-label="Dashboard settings dialog" @@click.self="closeSettings()">
+            <div class="add-card-modal__panel settings-modal__panel" role="dialog" aria-modal="true" aria-labelledby="settings-title" @@keydown.escape.window="closeSettings()">
+                <div class="add-card-modal__header">
+                    <h2 id="settings-title" class="panel__title">Dashboard settings</h2>
+                    <button type="button" class="add-card-modal__close" @@click="closeSettings()" aria-label="Close dashboard settings">Close</button>
+                </div>
+                <div class="card-form">
+                    <label>
+                        Dashboard title
+                        <input type="text" maxlength="120" x-model="editedTitle" placeholder="Homelab Dashboard" />
+                    </label>
+                    <div class="settings-actions">
+                        <button type="button" @@click="saveSettings()">Save</button>
+                        <button type="button" class="settings-actions__secondary" @@click="resetTitle()">Reset</button>
+                    </div>
+                </div>
+            </div>
+        </section>
 
         <main role="main">
             @RenderBody()
         </main>
     </div>
 
-    <script src="~/js/theme.js" asp-append-version="true"></script>
-    <script src="~/js/reorder.js" asp-append-version="true"></script>
+    <script src="~/js/app.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

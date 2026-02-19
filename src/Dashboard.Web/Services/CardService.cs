@@ -59,6 +59,35 @@ public class CardService(AppDbContext db)
         return true;
     }
 
+    public async Task<(bool Success, string? Error)> UpdateCardAsync(EditCardFormModel form, CancellationToken cancellationToken = default)
+    {
+        var card = await db.DashboardCards.FirstOrDefaultAsync(x => x.Id == form.Id, cancellationToken);
+        if (card is null)
+        {
+            return (false, "Card not found.");
+        }
+
+        var normalizedTitle = form.Title?.Trim() ?? string.Empty;
+        var normalizedUrl = form.Url?.Trim() ?? string.Empty;
+
+        if (string.IsNullOrWhiteSpace(normalizedTitle))
+        {
+            return (false, "Title is required.");
+        }
+
+        if (!UrlValidator.IsAllowedDashboardUrl(normalizedUrl))
+        {
+            return (false, "URL must be an absolute http:// or https:// address.");
+        }
+
+        card.Title = normalizedTitle;
+        card.Url = normalizedUrl;
+        card.UpdatedUtc = DateTime.UtcNow;
+
+        await db.SaveChangesAsync(cancellationToken);
+        return (true, null);
+    }
+
     public async Task<bool> ReorderAsync(IReadOnlyList<int> cardIds, CancellationToken cancellationToken = default)
     {
         if (cardIds.Count == 0)

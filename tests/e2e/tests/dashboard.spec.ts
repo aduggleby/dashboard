@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { addCard, clearAllCards, getCardTitles } from "./helpers";
+import { addCard, clearAllCards, getCardTitles, openAddCardModal } from "./helpers";
 
 test.beforeEach(async ({ page }) => {
   await page.goto("/");
@@ -17,9 +17,10 @@ test("shows empty state then supports create + open in same tab", async ({ page 
 });
 
 test("rejects invalid url schemes", async ({ page }) => {
+  await openAddCardModal(page);
   await page.getByLabel("Title").fill("Bad Link");
   await page.getByLabel("URL").fill("javascript:alert(1)");
-  await page.getByRole("button", { name: "Add card" }).click();
+  await page.getByRole("button", { name: "Add card", exact: true }).click();
 
   await expect(page.locator(".status.error")).toContainText("absolute http:// or https://");
   await expect(page.getByRole("heading", { name: "Bad Link" })).toHaveCount(0);

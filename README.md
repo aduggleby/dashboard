@@ -2,6 +2,20 @@
 
 Dashboard is an ASP.NET Core MVC (.NET 10) homelab launcher for self-hosted apps. It renders title-only cards in a responsive grid, stores data in SQLite, supports drag and keyboard reordering, and includes Origami light/dark themes.
 
+## App Preview
+
+Fresh screenshots generated with Playwright against a live test instance seeded with 6 example cards.
+
+![Dashboard preview (light)](docs/screenshots/dashboard-light-playwright.png)
+![Dashboard preview (dark)](docs/screenshots/dashboard-dark-playwright.png)
+
+### Example Fields
+
+Use these sample values when creating a card:
+
+- `Title`: `Plex`
+- `URL`: `https://plex.example.local`
+
 This README is deployment-first for TrueNAS SCALE using Custom App YAML, with local development and GHCR publish steps included.
 
 ## Quick Start (Local)
@@ -50,6 +64,7 @@ Requirements:
 dotnet restore Dashboard.slnx
 dotnet build Dashboard.slnx
 dotnet test Dashboard.slnx
+cd src/Dashboard.Web && npm install && npm run ts:build && cd ../..
 dotnet run --project src/Dashboard.Web/Dashboard.Web.csproj --urls http://127.0.0.1:8080
 ```
 
@@ -63,6 +78,17 @@ Stop dev environment:
 
 ```bash
 ./stop-dev.script
+```
+
+### Frontend (TypeScript + Alpine)
+
+Frontend behavior is authored in TypeScript under `src/Dashboard.Web/scripts/ts` and bundled to `src/Dashboard.Web/wwwroot/js/app.js` with esbuild.
+
+```bash
+cd src/Dashboard.Web
+npm install
+npm run ts:check
+npm run ts:build
 ```
 
 ## ANDO Build + GHCR Publish
