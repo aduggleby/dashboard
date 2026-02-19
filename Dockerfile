@@ -15,8 +15,14 @@ RUN mkdir -p /app/data
 
 COPY --from=build /app/publish ./
 
-ENV ASPNETCORE_URLS=http://+:8080
+ENV ASPNETCORE_URLS=http://+:8080;https://+:8443
 ENV ASPNETCORE_ENVIRONMENT=Production
+ENV ASPNETCORE_Kestrel__Certificates__Default__Path=/app/certs/dashboard.pfx
+ENV ASPNETCORE_Kestrel__Certificates__Default__Password=dashboard
 EXPOSE 8080
+EXPOSE 8443
 
-ENTRYPOINT ["dotnet", "Dashboard.Web.dll"]
+COPY scripts/docker-entrypoint.sh /app/docker-entrypoint.sh
+RUN chmod +x /app/docker-entrypoint.sh
+
+ENTRYPOINT ["/app/docker-entrypoint.sh"]

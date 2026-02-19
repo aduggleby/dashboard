@@ -6,11 +6,16 @@ services:
     image: dashboard-web:latest
     container_name: dashboard-web
     ports:
-      - "8080:8080"
+      - "80:8080"
+      - "443:8443"
     environment:
       ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_HTTPS_PORT: 443
       ConnectionStrings__DashboardDb: Data Source=/app/storage/data/dashboard.db
-      ThemeOptions__DefaultTheme: origami-light
     volumes:
       - ./data:/app/storage
+      - certs:/app/certs
     restart: unless-stopped
+
+volumes:
+  certs:
