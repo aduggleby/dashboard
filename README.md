@@ -114,19 +114,25 @@ echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USERNAME" --password-stdin
 Publish multi-arch image (`linux/amd64`, `linux/arm64`) to GHCR:
 
 ```bash
-GHCR_OWNER=<github-owner> GHCR_IMAGE=dashboard ando -p publish
+ando -p publish
 ```
 
-Optional override tag:
+The GHCR owner is inferred from the git remote origin URL. To override, set `GHCR_OWNER` explicitly:
 
 ```bash
-GHCR_OWNER=<github-owner> GHCR_IMAGE=dashboard IMAGE_TAG=1.0.0 ando -p publish
+GHCR_OWNER=myorg ando -p publish
+```
+
+Optional override for image name and tag:
+
+```bash
+GHCR_IMAGE=dashboard IMAGE_TAG=1.0.0 ando -p publish
 ```
 
 Resulting tags:
 
-- `ghcr.io/<github-owner>/dashboard:<version-or-IMAGE_TAG>`
-- `ghcr.io/<github-owner>/dashboard:latest`
+- `ghcr.io/<owner>/dashboard:<version-or-IMAGE_TAG>`
+- `ghcr.io/<owner>/dashboard:latest`
 
 If the GHCR package is private, configure image pull credentials in TrueNAS (Apps -> Manage Container Images / Registry Credentials) and reference that credential when creating the Custom App.
 
